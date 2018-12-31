@@ -1,8 +1,6 @@
 #%%
 import numpy as np 
 import pandas as pd
-#%%
-!pwd
 
 #%%
 df = pd.read_csv('data/reserve.csv', encoding = 'UTF-8')
