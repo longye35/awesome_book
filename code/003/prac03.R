@@ -50,3 +50,32 @@ reserve_tb %>%
   summarise(variance = var(total_price), st_deviation = sd(total_price)) %>%
   as.data.frame() %>%
   replace_na(list(variance=0, st_deviation = 0))
+
+
+#集計処理-最頻値を発見する
+#1000単位で四捨五入したあとに集計する-table関数
+#カテゴリ別のカウントが最大であるものを見つける
+#which.maxで最大値をもつベクトル情報を抽出し、namesで属性情報抽出
+names(which.max(table(round(reserve_tb$total_price, -3))))
+
+
+#集計処理-順序付
+#比較のために時間型データに変換してからwindow関数を使う
+reserve_tb$reserve_datetime <- as.POSIXct(reserve_tb$reserve_datetime, format = '%Y-%m-%d %H:%M:%S')
+
+reserve_tb %>%
+  group_by(customer_id) %>%
+  mutate(log_no = row_number(reserve_datetime)) %>%
+  as.data.frame()
+
+#ホテルごとの予約数を出して, その予約数で順位付する
+
+reserve_tb %>%
+  group_by(hotel_id) %>%
+  summarise(rsv_cnt = n()) %>%
+  #予約回数をもとに順位を算出する
+  #同じランクなら最小順位を全てつけてあげる->min_rank + descで降順
+  #transmuteで指定した列のみ残す
+  transmute(hotel_id, rsv_cnt_rank = min_rank(desc(rsv_cnt))) %>%
+  as.data.frame()
+

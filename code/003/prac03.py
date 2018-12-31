@@ -49,3 +49,29 @@ result.fillna(value = {'variance':0, 'st_deviation':0}, inplace = True)
 result.head()
 
 #%%
+#1000単位の最頻値を算出する-mode関数でOK
+df['total_price'].round(-3).mode()
+
+#%%
+#順序付処理 #顧客ごとの予約で時間ごとに順位付する
+df['reserve_datetime'] = pd.to_datetime(df['reserve_datetime'])
+df['log_no'] = df.groupby('customer_id')['reserve_datetime'] \
+        .rank(ascending=True, method = 'first')
+
+#%%
+df.head(20)
+
+#%%
+#順序付け処理その2 #ホテルごとの予約数を算出して順位付
+rsv_cnt_tb = df.groupby('hotel_id').size().reset_index()
+rsv_cnt_tb.columns = ['hotel_id', 'rsv_cnt']
+
+
+#%%
+rsv_cnt_tb['rsv_cnt_rank'] = rsv_cnt_tb['rsv_cnt'].rank(ascending = True, method = 'min')
+rsv_cnt_tb.drop('rsv_cnt', axis=1, inplace=True)
+
+#%%
+rsv_cnt_tb.head()
+
+#%%
